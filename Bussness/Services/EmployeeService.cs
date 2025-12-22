@@ -13,7 +13,7 @@ namespace Business.Services
         {
             _repo = repo;
         }
-        public async Task<List<Employee>> GetAllEmployeesAsync()
+        public async Task<List<EmployeeDto>> GetAllEmployeesAsync()
         {
             return await _repo.GetAllEmployeesAsync();
         }
@@ -45,8 +45,9 @@ namespace Business.Services
        
             await _repo.AddEmployeeAsync(employee);
 
+
         }
-        public async Task UpdateEmployeeAsync(UpdateEmployeeDto dto)
+        public async Task UpdateEmployeeAsync(EmployeeDto dto)
         {
             if (dto.Id <= 0)
                 throw new Exception("Invalid Employee ID");
@@ -62,7 +63,7 @@ namespace Business.Services
 
             if (employee is null)
                 throw new Exception("Employe not found");
-
+         
             employee.FirstName = dto.FirstName;
             employee.LastName = dto.LastName;
             employee.Email = dto.Email;
@@ -71,10 +72,8 @@ namespace Business.Services
             employee.Salary = dto.Salary;
             employee.DepartmentId = dto.DepartmentId;
             employee.RoleId = dto.RoleId;
-            employee.IsActive = true;
-            employee. CreatedDate = DateTime.UtcNow;
-         
-                await _repo.UpdateEmployeeAsync(employee);
+
+            await _repo.UpdateEmployeeAsync(employee);
         }
         public async Task ActiveEmployeeByIdAsync(int id)
         {

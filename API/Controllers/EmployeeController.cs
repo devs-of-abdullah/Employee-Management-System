@@ -32,7 +32,7 @@ namespace API.Controllers
             return Ok(dto);
         }
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> Update(int id, UpdateEmployeeDto employee) 
+        public async Task<IActionResult> Update(int id, EmployeeDto employee) 
         {
             if (id != employee.Id) return BadRequest();
             await _employeeService.UpdateEmployeeAsync(employee);

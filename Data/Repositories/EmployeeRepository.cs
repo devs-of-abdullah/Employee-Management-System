@@ -12,10 +12,10 @@ namespace Data.Repositories
         {
             _context = context;
         }
-        public async Task<List<ReadEmployeeDto>> GetAllEmployeesAsync()
+        public async Task<List<EmployeeDto>> GetAllEmployeesAsync()
         {
            var employee = await _context.Employees.Where(e => e.IsActive).ToListAsync();
-            var dtoEmploye = employee.Select(e => new ReadEmployeeDto
+            var dtoEmploye = employee.Select(e => new EmployeeDto
             {
                 Id = e.Id,
                 FirstName = e.FirstName,
@@ -34,7 +34,9 @@ namespace Data.Repositories
         }
         public async Task<Employee?> GetEmployeeByIdAsync(int id)
         {
-          return  await _context.Employees.FirstOrDefaultAsync(e => e.Id == id);
+          return await _context.Employees.FirstOrDefaultAsync(e => e.Id == id);
+          
+          
            
         }
         public async Task AddEmployeeAsync(Employee e)

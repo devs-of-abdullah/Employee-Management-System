@@ -6,7 +6,7 @@ namespace Data.Interfaces
 {
     public interface IEmployeeRepository
     {
-         Task<List<ReadEmployeeDto>> GetAllEmployeesAsync();
+         Task<List<EmployeeDto>> GetAllEmployeesAsync();
          Task<Employee?> GetEmployeeByIdAsync(int i);
          Task AddEmployeeAsync(Employee e);
         Task InActiveEmployeeByIdAsync(int i);
