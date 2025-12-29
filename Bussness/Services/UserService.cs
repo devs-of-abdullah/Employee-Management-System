@@ -1,5 +1,4 @@
 ﻿using Data;
-using Microsoft.Extensions.Configuration;
 using Entities.DTOs;
 using Business.Utils;
 namespace Business

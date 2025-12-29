@@ -1,6 +1,6 @@
 ﻿
 
-namespace Data
+namespace Entities
 {
     public class User
     {
