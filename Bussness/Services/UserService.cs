@@ -1,6 +1,7 @@
 ﻿using Data;
 using Entities.DTOs;
 using Business.Utils;
+using Entities;
 namespace Business
 {
     public class UserService : IUserService
@@ -13,43 +14,32 @@ namespace Business
             _tokenService = token;
         }
 
-        public async Task<bool> Register(string email, string password)
+        public async Task RegisterAsync(string email, string password)
         {
-            bool existeduser = await _repo.IsExistsByEmail(email);
+            if (await _repo.ExistsByEmailAsync(email))
+                throw new InvalidOperationException("User already exists");
 
-            if(existeduser == true)
-                return false;
-
-
-            var hashedPasssword = BCrypt.Net.BCrypt.HashPassword(password);
-            var User = new RegisterUserDto()
+            var user = new UserEntity
             {
-                
                 Email = email,
-                Password = hashedPasssword,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password)
             };
 
-             await _repo.Add(User);
+             await _repo.AddAsync(user);
 
-             return true;
             
         }
         
-        public async Task<string> Login(string email, string password) 
-        { 
-            var user = await _repo.GetByEmail(email);
+        public async Task<string> LoginAsync(string email, string password) 
+        {
+            var user = await _repo.GetByEmailAsync(email)
+                ?? throw new UnauthorizedAccessException("Invalid credintials");
 
-            if(user == null) 
-                return string.Empty;
+            if (!BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+                throw new InvalidOperationException("Invalid credintials");
 
-            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
+            return _tokenService.CreateToken(user);
 
-            if(!isPasswordValid) 
-                return string.Empty;
-
-            var token = _tokenService.CreateToken(user);
-
-            return token;
         }
        
 

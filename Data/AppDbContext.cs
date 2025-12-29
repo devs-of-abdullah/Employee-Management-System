@@ -68,11 +68,9 @@ namespace Data
 
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(100);
 
-                entity.Property(u => u.Password).IsRequired().HasMaxLength(250);
-
                 entity.HasIndex(u => u.Email).IsUnique();
 
-
+                entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(255);
             });
 
 

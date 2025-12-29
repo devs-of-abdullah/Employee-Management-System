@@ -19,31 +19,19 @@ namespace API
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
         {
-
-            if(!ModelState.IsValid) return BadRequest(ModelState);
-
-            var success = await _userService.Register(dto.Email, dto.Password);
-
-            if(!success) return BadRequest("Error creating User");
-
-            return Ok("User registered succesfully");
+             await _userService.RegisterAsync(dto.Email, dto.Password);
+             return StatusCode(201,"User registered succesfully");
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginUserDto dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
               
-            var token = await _userService.Login(dto.Email, dto.Password);
+            var token = await _userService.LoginAsync(dto.Email, dto.Password);
 
-            if (string.IsNullOrEmpty(token))
-                return Unauthorized("Email or password is incorrect");
-
-            return Ok(new
-            {
-                token
-            });
+            return Ok(new { token });
         }
+
         [Authorize]
         [HttpGet("me")]
         public IActionResult Me()

@@ -1,6 +1,6 @@
 ﻿
 
-using Entities.DTOs;
+using Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,15 +16,17 @@ namespace Business.Utils
         {
             _config = config;
         }
-        public string CreateToken(UserDto user)
+        public string CreateToken(UserEntity user)
         {
             var Claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 
             };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] 
+                ?? throw new InvalidOperationException("Jwt key is missing")));
 
             var creds = new SigningCredentials(key,SecurityAlgorithms.HmacSha256);
 
