@@ -108,23 +108,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("Program");
-    try
-    {
-        logger.LogInformation("Applying database migrations...");
-        var db = services.GetRequiredService<AppDbContext>();
-        db.Database.Migrate();
-        logger.LogInformation("Database migration finished.");
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "Database migration failed.");
-        throw;
-    }
-}
+
 
 if (app.Environment.IsDevelopment())
 {
