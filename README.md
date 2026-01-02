@@ -1,7 +1,8 @@
 # Employee Management System
 
 **Overview**
-- This Project is a **Employe Management System** built with ASP.NET Core following clean, layered architecture.
+- This Project is a **Employe Management System APIs**
+- built with ASP.NET Core following clean, layered architecture.
 - It simulates CRUD operations such as employe management, determine its roles and department and many other functions.
 - The goal of this project is to demonstrate my development skills, data management, and business logic handling.
 
@@ -18,7 +19,6 @@
 - Entity Framework Core 
 - C#
 - Clean architechure principles
-- Blazor
 
 **What I Learned**
 - Designing business rules for enterprise systems
@@ -33,4 +33,3 @@
 3) Run Database Migrations
 - For initial create (dotnet ef migrations add InitialCreate --project Data --startup-project API)
 - To update (dotnet ef database update --project Data --startup-project API)
-4) Start the Blazor Client
