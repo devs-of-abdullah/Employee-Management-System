@@ -2,9 +2,8 @@
 
 using Business.Interfaces;
 using Data.Interfaces;
-using Entities;
-using Entities.DTOs;
-
+using DTO.Department;
+using Entity;
 namespace Business.Services
 {
     public class DepartmentService : IDepartmentService
@@ -47,12 +46,11 @@ namespace Business.Services
             };
             return await _repo.CreateAsync(entity);
         }
-        public async Task UpdateAsync(int Id, UpdateDepartmentDto dto)
+        public async Task UpdateDepartmentDescriptionAsync(int Id,  UpdateDepartmentDescriptionDto dto)
         {
             var department = await _repo.GetByIdAsync(Id)
             ?? throw new KeyNotFoundException("Department not found");
 
-            department.Name = dto.Name;
             department.Description = dto.Description;
 
             await _repo.UpdateAsync(department);
@@ -63,11 +61,11 @@ namespace Business.Services
         }
         public async Task AddEmployeeAsync(int departmentId, int employeeId)
         {
-            await _repo.AddEmployeeAsync(departmentId, employeeId);
+            await _repo.AddEmployeeToDepartmentAsync(departmentId, employeeId);
         }
         public async Task RemoveEmployeeAsync(int departmentId, int employeeId)
         {
-            await _repo.RemoveEmployeeAsync(departmentId, employeeId);
+            await _repo.RemoveEmployeeFromDepartmentAsync(departmentId, employeeId);
         }
     }
 }

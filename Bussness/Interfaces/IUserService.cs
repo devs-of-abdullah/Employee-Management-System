@@ -1,16 +1,14 @@
-﻿
-using Entities.DTOs;
-
-namespace Business
+﻿using DTO.User;
+namespace Business.Interfaces
 {
     public interface IUserService
     {
-        Task<int> RegisterAsync(string email, string password);
-        Task<string> LoginAsync(string email, string password);
-        Task DeleteAsync(int id);
-        Task UpdateAsync(int Id, UpdateUserDto userDto);
-        Task<UserDto?> GetByIdAsync(int id);
-        Task<UserDto?> GetByEmailAsync(string email);
-        Task<List<UserDto>> GetAllAsync();
+        Task<int> CreateAsync(CreateUserDTO UserDto);
+        Task SoftDeleteAsync(int id, SoftUserDeleteDTO dto);
+        Task<ReadUserDTO?> GetByIdAsync(int id);
+        Task<ReadUserDTO?> GetByEmailAsync(string email);
+        Task UpdatePasswordAsync(int id, UpdateUserPasswordDTO dto);
+        Task UpdateRoleAsync(int id, UpdateUserRoleDTO dto);
+        Task UpdateEmailAsync(int id,UpdateUserEmailDTO dto);
     }
 }

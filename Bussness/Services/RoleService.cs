@@ -3,8 +3,7 @@
 using Business.Interfaces;
 using Data.Interfaces;
 using Entities;
-using Entities.DTOs;
-
+using DTO.Role;
 namespace Business.Services
 {
     public class RoleService : IRoleService
@@ -47,27 +46,18 @@ namespace Business.Services
             };
             return await _repo.CreateAsync(entity);
         }
-        public async Task UpdateAsync(int Id, UpdateRoleDto dto)
-        {
-            var role = await _repo.GetByIdAsync(Id)
-            ?? throw new KeyNotFoundException("role not found");
-
-            role.Name = dto.Name;
-            role.Description = dto.Description;
-
-            await _repo.UpdateAsync(role);
-        }
+    
         public async Task DeleteAsync(int id)
         {
             await _repo.DeleteAsync(id);
         }
         public async Task AddEmployeeAsync(int roleId, int employeeId)
         {
-            await _repo.AddEmployeeAsync(roleId, employeeId);
+            await _repo.AddEmployeeToRoleAsync(roleId, employeeId);
         }
         public async Task RemoveEmployeeAsync(int roleId, int employeeId)
         {
-            await _repo.RemoveEmployeeAsync(roleId, employeeId);
+            await _repo.RemoveEmployeeFromRoleAsync(roleId, employeeId);
         }
     }
 }

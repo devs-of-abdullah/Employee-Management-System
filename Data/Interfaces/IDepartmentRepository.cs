@@ -1,6 +1,5 @@
 ﻿
-
-using Entities;
+using Entity;
 
 namespace Data.Interfaces
 {
@@ -11,7 +10,7 @@ namespace Data.Interfaces
         Task UpdateAsync(DepartmentEntity department);
         Task<DepartmentEntity?> GetByIdAsync(int id);
         Task<List<DepartmentEntity>> GetAllAsync();
-        Task AddEmployeeAsync(int departmentId, int employeeID);
-        Task RemoveEmployeeAsync(int departmentId, int employeeID);
+        Task AddEmployeeToDepartmentAsync(int departmentId, int employeeID);
+        Task RemoveEmployeeFromDepartmentAsync(int departmentId, int employeeID);
     }
 }

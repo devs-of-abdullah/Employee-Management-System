@@ -1,8 +1,7 @@
 ﻿using Business.Interfaces;
 using Data.Interfaces;
 using Entities;
-using Entities.DTOs;
-
+using DTO.Employee;
 namespace Business.Services
 {
     public class EmployeeService : IEmployeeService
@@ -12,13 +11,13 @@ namespace Business.Services
         {
             _repo = repo;
         }
-        public async Task<List<EmployeeDto>> GetAllAsync()
+        public async Task<List<ReadEmployeeDto>> GetAllAsync()
         {
-            return await _repo.GetAllAsync();        
+            return null;
         }
-        public async Task<EmployeeDto?> GetByIdAsync(int id)
+        public async Task<ReadEmployeeDto> GetByIdAsync(int id)
         {
-            return await _repo.GetByIdAsync(id);
+            return null;
         }
         public  async Task AddAsync(CreateEmployeeDto dto)
         {
@@ -36,38 +35,17 @@ namespace Business.Services
                 PhoneNumber = dto.PhoneNumber,
                 HireDate = dto.HireDate,
                 Salary = dto.Salary,
-                DepartmentId = dto.DepartmentId,
-                RoleId = dto.RoleId,
             };
        
             await _repo.AddAsync(employee);
 
 
         }
-        public async Task UpdateAsync(EmployeeDto dto)
+        public async Task UpdateAsync()
         {
 
-            if (string.IsNullOrWhiteSpace(dto.Email))
-                throw new Exception("Email is required");
-         
+          
 
-            if (string.IsNullOrWhiteSpace(dto.PhoneNumber))
-                throw new Exception("Phone Number is Required");
-
-            var employee = await _repo.GetEntityByIdAsync(dto.Id);
-
-            if (employee == null) return;
-         
-            employee.FirstName = dto.FirstName;
-            employee.LastName = dto.LastName;
-            employee.Email = dto.Email;
-            employee.PhoneNumber = dto.PhoneNumber;
-            employee.HireDate = dto.HireDate;
-            employee.Salary = dto.Salary;
-            employee.DepartmentId = dto.DepartmentId;
-            employee.RoleId = dto.RoleId;
-
-            await _repo.UpdateAsync(employee);
         }
         public async Task ActivateAsync(int id)
         {

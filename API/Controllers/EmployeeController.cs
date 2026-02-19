@@ -1,6 +1,5 @@
 ﻿using Business.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Entities.DTOs;
 using Microsoft.AspNetCore.Authorization;
 namespace API.Controllers
 {
@@ -30,24 +29,9 @@ namespace API.Controllers
 
         }
 
-        [Authorize]
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateEmployeeDto dto) 
-        {
-         
-            await _employeeService.AddAsync(dto);
-            return StatusCode(201);
-        }
+     
 
-        [Authorize]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id,[FromBody] EmployeeDto employee) 
-        {
-            if (id != employee.Id) return BadRequest();
-
-            await _employeeService.UpdateAsync(employee);
-            return NoContent();
-        }
+        
         
         [Authorize]
         [HttpPatch("{id}/activate")]

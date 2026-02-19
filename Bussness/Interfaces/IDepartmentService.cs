@@ -1,6 +1,4 @@
-﻿
-
-using Entities.DTOs;
+﻿using DTO.Department;
 
 namespace Business.Interfaces
 {
@@ -9,7 +7,7 @@ namespace Business.Interfaces
         
             Task<int> CreateAsync(CreateDepartmentDto department);
             Task DeleteAsync(int id);
-            Task UpdateAsync(int Id, UpdateDepartmentDto dto);
+      
             Task<DepartmentDto?> GetByIdAsync(int id);
             Task<List<DepartmentDto>> GetAllAsync();
             Task AddEmployeeAsync(int departmentId, int employeeID);

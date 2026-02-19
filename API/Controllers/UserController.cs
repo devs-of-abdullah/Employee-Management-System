@@ -1,81 +1,118 @@
-﻿using Business;
-using Entities.DTOs;
+using Business.Interfaces;
+using DTO.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
-namespace API
+[ApiController]
+[Route("api/[controller]")]
+[EnableRateLimiting("AuthLimiter")]
+public class UsersController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class UserController : ControllerBase
+    private readonly IUserService _userService;
+    private readonly IAuthorizationService _authorizationService;
+
+    public UsersController(IUserService userService, IAuthorizationService authorizationService)
     {
-         readonly IUserService _userService;
+        _userService = userService;
+        _authorizationService = authorizationService;
+    }
 
-        public UserController(IUserService userService)
-        {
-            _userService = userService;
-        }
+    [HttpGet("{id:int}", Name = "GetUserById")]
+    [ProducesResponseType(typeof(ReadUserDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ReadUserDTO>> GetById(int id)
+    {
+        if (id <= 0)
+            return BadRequest("Invalid user ID.");
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterUserDto dto)
-        {
-             int Id = await _userService.RegisterAsync(dto.Email, dto.Password);
-             return StatusCode(201,$"User registered succesfully with ID: {Id}");
-        }
+        var authResult = await _authorizationService.AuthorizeAsync(User, id, "UserOwnerOrAdmin");
+        if (!authResult.Succeeded)
+            return User.Identity?.IsAuthenticated == true ? Forbid() : Unauthorized();
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginUserDto dto)
-        {
-              
-            var token = await _userService.LoginAsync(dto.Email, dto.Password);
+        var user = await _userService.GetByIdAsync(id);
 
-            return Ok(new { token });
-        }
+        return user is null ? NotFound("User not found.") : Ok(user);
+    }
 
-        [Authorize]
-        [HttpGet("me")]
-        public IActionResult Me()
-        {
-            return Ok(new
-            {
-                UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
-                Email = User.FindFirst(ClaimTypes.Email)?.Value
+    [HttpPost(Name = "CreateUser")]
+    [ProducesResponseType(typeof(ReadUserDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<ReadUserDTO>> Create([FromBody] CreateUserDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-            });
-        }
-        [Authorize]
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            return Ok(await _userService.GetAllAsync());
-        }
+        var existingUser = await _userService.GetByEmailAsync(dto.Email);
+        if (existingUser != null)
+            return Conflict("User email already exists.");
 
-        [Authorize]
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var user = _userService.GetByIdAsync(id);
-            return user == null ? NotFound() : Ok(user);
+        var createdId = await _userService.CreateAsync(dto);
+        if (createdId <= 0)
+            return BadRequest("Error while creating user.");
 
-        }
+        var createdUser = await _userService.GetByIdAsync(createdId);
 
-        [Authorize]
-        [HttpDelete("{id:int}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            await _userService.DeleteAsync(id);
-            return NoContent();
+        return CreatedAtRoute("GetUserById", new { id = createdId }, createdUser);
+    }
 
-        }
+    [Authorize]
+    [HttpPut("change-password", Name = "ChangeUserPassword")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> ChangePassword([FromBody] UpdateUserPasswordDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-        [Authorize]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto dto)
-        {
-            await _userService.UpdateAsync(id, dto);
-            return NoContent();
-        }
+        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+            return Unauthorized();
 
+        await _userService.UpdatePasswordAsync(userId, dto);
+
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpDelete("self", Name = "SelfDelete")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> SelfDelete([FromBody] SoftUserDeleteDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+            return Unauthorized();
+
+        await _userService.SoftDeleteAsync(userId, dto);
+
+        return NoContent();
+    }
+
+    [Authorize(Roles = "admin")]
+    [HttpDelete("{id:int}", Name = "AdminDelete")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> AdminDelete(int id, [FromBody] SoftUserDeleteDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        if (id <= 0)
+            return BadRequest("Invalid user ID.");
+
+        await _userService.SoftDeleteAsync(id, dto);
+
+        return NoContent();
     }
 }

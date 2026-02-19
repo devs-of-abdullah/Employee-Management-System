@@ -1,4 +1,5 @@
 ﻿using Entities;
+using Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data
@@ -32,37 +33,13 @@ namespace Data
 
                 entity.Property(e => e.CreatedDate).HasDefaultValueSql("GETUTCDATE()");
 
-                entity.HasOne(e => e.Department).WithMany(d => d.Employees).HasForeignKey(e => e.DepartmentId).OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(e => e.Role).WithMany(r => r.Employees).HasForeignKey(e => e.RoleId).OnDelete(DeleteBehavior.Restrict);
-
-            });
-
-            modelBuilder.Entity<DepartmentEntity>(entity =>
-            {
-                entity.HasKey(d => d.Id);
-
-                entity.Property(d => d.Name).IsRequired().HasMaxLength(100);
-
-                entity.Property(d => d.Description).IsRequired().HasMaxLength(500);
-
-                entity.HasMany(d => d.Employees).WithOne(e => e.Department).HasForeignKey(e => e.DepartmentId)
-                .OnDelete(DeleteBehavior.Restrict);
 
 
             });
+
+           
             
-            modelBuilder.Entity<RoleEntity>(entity =>
-            {
-                entity.HasKey(r => r.Id);
-
-                entity.Property(r => r.Name).IsRequired().HasMaxLength(50);
-                entity.Property(r => r.Description).IsRequired().HasMaxLength(250);
-
-                entity.HasMany(d => d.Employees).WithOne(e => e.Role).HasForeignKey(e => e.RoleId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            });
+            
 
             modelBuilder.Entity<UserEntity>(entity =>
             {
@@ -75,9 +52,38 @@ namespace Data
                 entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(255);
             });
 
+            modelBuilder.Entity<EmployeeDepartmentEntity>(entity =>
+            {
+                entity.HasKey(ed => new { ed.EmployeeId, ed.DepartmentId });
+
+                entity.HasOne(ed => ed.Employee)
+                    .WithMany(e => e.EmployeeDepartments)
+                    .HasForeignKey(ed => ed.EmployeeId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(ed => ed.Department)
+                    .WithMany(d => d.EmployeeDepartments)
+                    .HasForeignKey(ed => ed.DepartmentId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<EmployeeRoleEntity>(entity =>
+            {
+                entity.HasKey(er => new { er.EmployeeId, er.RoleId });
+
+                entity.HasOne(er => er.Employee)
+                    .WithMany(e => e.EmployeeRoles)
+                    .HasForeignKey(er => er.EmployeeId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(er => er.Role)
+                    .WithMany(r => r.EmployeeRoles)
+                    .HasForeignKey(er => er.RoleId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
 
         }
-      
+
     }
 }

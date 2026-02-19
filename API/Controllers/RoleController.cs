@@ -1,6 +1,5 @@
 ﻿using Business.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Entities.DTOs;
 using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
@@ -22,16 +21,7 @@ namespace API.Controllers
             return Ok(await _service.GetAllAsync());
         }
 
-        [Authorize]
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateRoleDto dto)
-        {
-
-            var id = await _service.CreateAsync(dto);
-
-            return CreatedAtAction(nameof(Get), new { id }, dto);
-
-        }
+     
 
         [Authorize]
         [HttpGet("{id:int}")]
@@ -49,16 +39,7 @@ namespace API.Controllers
             return NoContent();
         }
 
-        [Authorize]
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateRoleDto dto)
-        {
-
-            await _service.UpdateAsync(id, dto);
-
-            return NoContent();
-
-        }
+        
 
         [Authorize]
         [HttpPost("{id:int}/employees{employeId:int}")]
