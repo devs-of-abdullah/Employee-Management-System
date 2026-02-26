@@ -1,6 +1,4 @@
-﻿
-using Entity;
-
+﻿using Entities;
 namespace Data.Interfaces
 {
     public interface IDepartmentRepository
@@ -10,7 +8,7 @@ namespace Data.Interfaces
         Task UpdateAsync(DepartmentEntity department);
         Task<DepartmentEntity?> GetByIdAsync(int id);
         Task<List<DepartmentEntity>> GetAllAsync();
-        Task AddEmployeeToDepartmentAsync(int departmentId, int employeeID);
-        Task RemoveEmployeeFromDepartmentAsync(int departmentId, int employeeID);
+        Task AddEmployeeToDepartmentAsync(int departmentId, int employeeId);
+        Task RemoveEmployeeFromDepartmentAsync(int departmentId, int employeeId);
     }
 }

@@ -1,20 +1,14 @@
 ﻿using Microsoft.OpenApi.Models;
-
 namespace API.Extensions;
-
+     
 public static class SwaggerExtensions
 {
     public static IServiceCollection AddSwaggerDocumentation(this IServiceCollection services)
     {
         services.AddEndpointsApiExplorer();
-
         services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo
-            {
-                Title = "Template Auth API ",
-                Version = "v1"
-            });
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "HR Management API", Version = "v1" });
 
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
@@ -27,19 +21,15 @@ public static class SwaggerExtensions
             });
 
             options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
                 {
-                    new OpenApiSecurityScheme
                     {
-                        Reference = new OpenApiReference
+                        new OpenApiSecurityScheme
                         {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    Array.Empty<string>()
-                }
-            });
+                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
         });
 
         return services;

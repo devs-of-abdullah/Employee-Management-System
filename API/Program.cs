@@ -3,7 +3,6 @@ using Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
@@ -22,7 +21,6 @@ builder.Services.AddSingleton<IAuthorizationHandler, UserOwnerOrAdminHandler>();
 
 var app = builder.Build();
 
-
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -36,12 +34,9 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
-
 app.UseRateLimiter();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();

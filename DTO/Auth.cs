@@ -10,14 +10,13 @@ namespace DTO.Auth
         [Required]
         public string Password { get; init; } = null!;
     }
+
     public record LogoutRequestDTO
     {
-        [Required, EmailAddress]
-        public string Email { get; init; } = null!;
-
         [Required]
         public string RefreshToken { get; init; } = null!;
     }
+
     public record RefreshRequestDTO
     {
         [Required]
@@ -26,6 +25,7 @@ namespace DTO.Auth
         [Required, EmailAddress]
         public string Email { get; init; } = null!;
     }
+
     public record TokenResponseDTO
     {
         public string AccessToken { get; init; } = null!;

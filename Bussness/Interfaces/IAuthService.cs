@@ -4,8 +4,8 @@ namespace Business.Interfaces
 {
     public interface IAuthService
     {
-        Task<TokenResponseDTO?> Login(LoginRequestDTO dto);
-        Task<TokenResponseDTO?> RefreshToken(RefreshRequestDTO dto);
-        Task Logout(int id, string refreshToken);
+        Task<TokenResponseDTO?> LoginAsync(LoginRequestDTO dto);
+        Task<TokenResponseDTO?> RefreshTokenAsync(RefreshRequestDTO dto);
+        Task LogoutAsync(int userId, string refreshToken);
     }
 }

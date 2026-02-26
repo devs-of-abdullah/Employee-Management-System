@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿namespace API.Extensions;
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-
-namespace API.Extensions;
 
 public static class AuthenticationExtensions
 {
@@ -10,7 +10,7 @@ public static class AuthenticationExtensions
     {
         var jwtKey = configuration["Jwt:Key"] ?? throw new Exception("JWT Key missing.");
         var jwtIssuer = configuration["Jwt:Issuer"] ?? throw new Exception("JWT Issuer missing.");
-        var jwtAudience = configuration["Jwt:Audience"]?? throw new Exception("JWT Audience missing.");
+        var jwtAudience = configuration["Jwt:Audience"] ?? throw new Exception("JWT Audience missing.");
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -23,8 +23,7 @@ public static class AuthenticationExtensions
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtIssuer,
                     ValidAudience = jwtAudience,
-                    IssuerSigningKey =
-                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
                     ClockSkew = TimeSpan.Zero
                 };
             });

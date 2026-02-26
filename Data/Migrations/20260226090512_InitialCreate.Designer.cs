@@ -4,6 +4,7 @@ using Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260226090512_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,29 +24,6 @@ namespace Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Entities.DepartmentEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Departments");
-                });
 
             modelBuilder.Entity("Entities.EmployeeDepartmentEntity", b =>
                 {
@@ -60,7 +40,7 @@ namespace Data.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("EmployeeDepartments");
+                    b.ToTable("EmployeeDepartmentEntity");
                 });
 
             modelBuilder.Entity("Entities.EmployeeEntity", b =>
@@ -128,7 +108,7 @@ namespace Data.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("EmployeeRoles");
+                    b.ToTable("EmployeeRoleEntity");
                 });
 
             modelBuilder.Entity("Entities.RoleEntity", b =>
@@ -141,13 +121,11 @@ namespace Data.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -167,8 +145,8 @@ namespace Data.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -202,9 +180,30 @@ namespace Data.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Entity.DepartmentEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Departments");
+                });
+
             modelBuilder.Entity("Entities.EmployeeDepartmentEntity", b =>
                 {
-                    b.HasOne("Entities.DepartmentEntity", "Department")
+                    b.HasOne("Entity.DepartmentEntity", "Department")
                         .WithMany("EmployeeDepartments")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -240,11 +239,6 @@ namespace Data.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Entities.DepartmentEntity", b =>
-                {
-                    b.Navigation("EmployeeDepartments");
-                });
-
             modelBuilder.Entity("Entities.EmployeeEntity", b =>
                 {
                     b.Navigation("EmployeeDepartments");
@@ -255,6 +249,11 @@ namespace Data.Migrations
             modelBuilder.Entity("Entities.RoleEntity", b =>
                 {
                     b.Navigation("EmployeeRoles");
+                });
+
+            modelBuilder.Entity("Entity.DepartmentEntity", b =>
+                {
+                    b.Navigation("EmployeeDepartments");
                 });
 #pragma warning restore 612, 618
         }

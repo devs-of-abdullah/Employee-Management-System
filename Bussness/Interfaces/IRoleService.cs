@@ -3,13 +3,13 @@ namespace Business.Interfaces
 {
     public interface IRoleService
     {
-
-        Task<int> CreateAsync(CreateRoleDto role);
-        Task DeleteAsync(int id);
-        Task<RoleDto?> GetByIdAsync(int id);
         Task<List<RoleDto>> GetAllAsync();
-        Task AddEmployeeAsync(int roleId, int employeeID);
-        Task RemoveEmployeeAsync(int roleId, int employeeID);
-
+        Task<RoleDto?> GetByIdAsync(int id);
+        Task<int> CreateAsync(CreateRoleDto dto);
+        Task UpdateNameAsync(int id, UpdateRoleNameDto dto);
+        Task UpdateDescriptionAsync(int id, UpdateRoleDescriptionDto dto);
+        Task DeleteAsync(int id);
+        Task AddEmployeeAsync(int roleId, int employeeId);
+        Task RemoveEmployeeAsync(int roleId, int employeeId);
     }
 }

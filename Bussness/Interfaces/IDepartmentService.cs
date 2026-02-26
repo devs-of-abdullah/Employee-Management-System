@@ -4,14 +4,13 @@ namespace Business.Interfaces
 {
     public interface IDepartmentService
     {
-        
-            Task<int> CreateAsync(CreateDepartmentDto department);
-            Task DeleteAsync(int id);
-      
-            Task<DepartmentDto?> GetByIdAsync(int id);
-            Task<List<DepartmentDto>> GetAllAsync();
-            Task AddEmployeeAsync(int departmentId, int employeeID);
-            Task RemoveEmployeeAsync(int departmentId, int employeeID);
-        
+        Task<List<DepartmentDto>> GetAllAsync();
+        Task<DepartmentDto?> GetByIdAsync(int id);
+        Task<int> CreateAsync(CreateDepartmentDto dto);
+        Task UpdateDescriptionAsync(int id, UpdateDepartmentDescriptionDto dto);
+        Task UpdateNameAsync(int id, UpdateDepartmentNameDto dto);
+        Task DeleteAsync(int id);
+        Task AddEmployeeAsync(int departmentId, int employeeId);
+        Task RemoveEmployeeAsync(int departmentId, int employeeId);
     }
 }

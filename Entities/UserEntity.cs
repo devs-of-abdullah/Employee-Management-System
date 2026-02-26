@@ -5,17 +5,11 @@ namespace Entities
     public class UserEntity
     {
         public int Id { get; set; }
-
         public string Email { get; set; } = null!;
-
         public string PasswordHash { get; set; } = null!;
-
-        public string Role { get; set; } = null!; // superAdmin, admin
-
+        public string Role { get; set; } = null!;
         public bool IsDeleted { get; set; }
-
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
         public DateTime? UpdatedAt { get; set; }
         public string? RefreshTokenHash { get; set; }
         public DateTime? RefreshTokenExpiresAt { get; set; }

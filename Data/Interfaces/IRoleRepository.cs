@@ -11,7 +11,7 @@ namespace Data.Interfaces
         Task UpdateAsync(RoleEntity role);
         Task<RoleEntity?> GetByIdAsync(int id);
         Task<List<RoleEntity>> GetAllAsync();
-        Task AddEmployeeToRoleAsync(int roleId, int employeeID);
-        Task RemoveEmployeeFromRoleAsync(int roleId, int employeeID);
+        Task AddEmployeeToRoleAsync(int roleId, int employeeId);
+        Task RemoveEmployeeFromRoleAsync(int roleId, int employeeId);
     }
 }

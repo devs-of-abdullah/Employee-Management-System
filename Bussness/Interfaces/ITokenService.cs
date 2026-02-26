@@ -7,6 +7,6 @@ namespace Business.Interfaces
 {
     public interface ITokenService
     {
-        TokenResponseDTO GenerateToken(UserEntity entity);
+        TokenResponseDTO GenerateToken(UserEntity user);
     }
 }

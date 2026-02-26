@@ -13,7 +13,6 @@ public static class RateLimitExtensions
             options.AddPolicy("AuthLimiter", httpContext =>
             {
                 var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-
                 return RateLimitPartition.GetFixedWindowLimiter(
                     partitionKey: ip,
                     factory: _ => new FixedWindowRateLimiterOptions
@@ -23,19 +22,19 @@ public static class RateLimitExtensions
                         QueueLimit = 0
                     });
             });
+
             options.OnRejected = async (context, cancellationToken) =>
             {
                 context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
                 context.HttpContext.Response.ContentType = "application/json";
-
                 await context.HttpContext.Response.WriteAsJsonAsync(new
                 {
-                    message = "Too many login attempts. Please try again later."
+                    message = "Too many requests. Please try again later."
                 }, cancellationToken);
             };
         });
 
         return services;
     }
-   
+
 }

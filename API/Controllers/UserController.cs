@@ -2,16 +2,14 @@ using Business.Interfaces;
 using DTO.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
 [ApiController]
-[Route("api/[controller]")]
-[EnableRateLimiting("AuthLimiter")]
+[Route("api/users")]
 public class UsersController : ControllerBase
 {
-    private readonly IUserService _userService;
-    private readonly IAuthorizationService _authorizationService;
+    readonly IUserService _userService;
+    readonly IAuthorizationService _authorizationService;
 
     public UsersController(IUserService userService, IAuthorizationService authorizationService)
     {
@@ -21,11 +19,10 @@ public class UsersController : ControllerBase
 
     [HttpGet("{id:int}", Name = "GetUserById")]
     [ProducesResponseType(typeof(ReadUserDTO), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<ReadUserDTO>> GetById(int id)
+    public async Task<IActionResult> GetById(int id)
     {
         if (id <= 0)
             return BadRequest("Invalid user ID.");
@@ -35,34 +32,30 @@ public class UsersController : ControllerBase
             return User.Identity?.IsAuthenticated == true ? Forbid() : Unauthorized();
 
         var user = await _userService.GetByIdAsync(id);
-
-        return user is null ? NotFound("User not found.") : Ok(user);
+        return user == null ? NotFound("User not found.") : Ok(user);
     }
 
     [HttpPost(Name = "CreateUser")]
     [ProducesResponseType(typeof(ReadUserDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<ReadUserDTO>> Create([FromBody] CreateUserDTO dto)
+    public async Task<IActionResult> Create([FromBody] CreateUserDTO dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var existingUser = await _userService.GetByEmailAsync(dto.Email);
-        if (existingUser != null)
-            return Conflict("User email already exists.");
+        var existing = await _userService.GetByEmailAsync(dto.Email);
+        if (existing != null)
+            return Conflict("A user with this email already exists.");
 
         var createdId = await _userService.CreateAsync(dto);
-        if (createdId <= 0)
-            return BadRequest("Error while creating user.");
-
         var createdUser = await _userService.GetByIdAsync(createdId);
 
         return CreatedAtRoute("GetUserById", new { id = createdId }, createdUser);
     }
 
     [Authorize]
-    [HttpPut("change-password", Name = "ChangeUserPassword")]
+    [HttpPut("change-password")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -75,14 +68,29 @@ public class UsersController : ControllerBase
             return Unauthorized();
 
         await _userService.UpdatePasswordAsync(userId, dto);
-
         return NoContent();
     }
 
     [Authorize]
-    [HttpDelete("self", Name = "SelfDelete")]
+    [HttpPut("change-email")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> ChangeEmail([FromBody] UpdateUserEmailDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+            return Unauthorized();
+
+        await _userService.UpdateEmailAsync(userId, dto);
+        return NoContent();
+    }
+
+    [Authorize]
+    [HttpDelete("self")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> SelfDelete([FromBody] SoftUserDeleteDTO dto)
     {
@@ -93,26 +101,39 @@ public class UsersController : ControllerBase
             return Unauthorized();
 
         await _userService.SoftDeleteAsync(userId, dto);
-
         return NoContent();
     }
 
-    [Authorize(Roles = "admin")]
-    [HttpDelete("{id:int}", Name = "AdminDelete")]
+    [Authorize(Roles = "admin,superAdmin")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> AdminDelete(int id, [FromBody] SoftUserDeleteDTO dto)
+    public async Task<IActionResult> AdminDelete(int id)
+    {
+        if (id <= 0)
+            return BadRequest("Invalid user ID.");
+
+        var user = await _userService.GetByIdAsync(id);
+        if (user == null)
+            return NotFound("User not found.");
+
+        await _userService.UpdateRoleAsync(id, new UpdateUserRoleDTO { NewRole = user.Role }); 
+                                                                                              
+        await _userService.SoftDeleteAsync(id, new SoftUserDeleteDTO { CurrentPassword = string.Empty });
+        return NoContent();
+    }
+
+    [Authorize(Roles = "superAdmin")]
+    [HttpPut("{id:int}/role")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateRole(int id, [FromBody] UpdateUserRoleDTO dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        if (id <= 0)
-            return BadRequest("Invalid user ID.");
-
-        await _userService.SoftDeleteAsync(id, dto);
-
+        await _userService.UpdateRoleAsync(id, dto);
         return NoContent();
     }
 }

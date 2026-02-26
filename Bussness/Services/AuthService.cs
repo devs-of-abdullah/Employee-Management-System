@@ -1,14 +1,15 @@
 ﻿using DTO.Auth;
-using Data;
 using Microsoft.Extensions.Configuration;
 using Business.Interfaces;
+using Data;
 namespace Business.Services
 {
+
     public class AuthService : IAuthService
     {
-         readonly IUserRepository _userRepository;
-         readonly ITokenService _tokenService;
-         readonly IConfiguration _config;
+        readonly IUserRepository _userRepository;
+        readonly ITokenService _tokenService;
+        readonly IConfiguration _config;
 
         public AuthService(IUserRepository userRepository, ITokenService tokenService, IConfiguration config)
         {
@@ -17,10 +18,9 @@ namespace Business.Services
             _config = config;
         }
 
-        public async Task<TokenResponseDTO?> Login(LoginRequestDTO request)
+        public async Task<TokenResponseDTO?> LoginAsync(LoginRequestDTO request)
         {
             var email = request.Email.Trim().ToLower();
-
             var user = await _userRepository.GetByEmailAsync(email);
 
             if (user == null || user.IsDeleted)
@@ -39,14 +39,12 @@ namespace Business.Services
             user.UpdatedAt = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);
-
             return tokens;
         }
 
-        public async Task<TokenResponseDTO?> RefreshToken(RefreshRequestDTO request)
+        public async Task<TokenResponseDTO?> RefreshTokenAsync(RefreshRequestDTO request)
         {
             var email = request.Email.Trim().ToLower();
-
             var user = await _userRepository.GetByEmailAsync(email);
 
             if (user == null || user.IsDeleted)
@@ -55,8 +53,7 @@ namespace Business.Services
             if (user.RefreshTokenRevokedAt != null)
                 return null;
 
-            if (user.RefreshTokenExpiresAt == null ||
-                user.RefreshTokenExpiresAt <= DateTime.UtcNow)
+            if (user.RefreshTokenExpiresAt == null || user.RefreshTokenExpiresAt <= DateTime.UtcNow)
                 return null;
 
             if (string.IsNullOrEmpty(user.RefreshTokenHash) ||
@@ -73,11 +70,9 @@ namespace Business.Services
             user.UpdatedAt = DateTime.UtcNow;
 
             await _userRepository.UpdateAsync(user);
-
             return tokens;
         }
-
-        public async Task Logout(int userId, string refreshToken)
+        public async Task LogoutAsync(int userId, string refreshToken)
         {
             var user = await _userRepository.GetByIdAsync(userId);
 
@@ -93,5 +88,5 @@ namespace Business.Services
             }
         }
     }
-}
+    }
 

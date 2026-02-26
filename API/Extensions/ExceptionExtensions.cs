@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
-
-public static class ExceptionMExtensions
+﻿
+public static class ExceptionMiddlewareExtensions
 {
     public static void UseGlobalExceptionHandler(this WebApplication app)
     {
@@ -12,7 +11,7 @@ public static class ExceptionMExtensions
                 context.Response.ContentType = "application/json";
                 await context.Response.WriteAsJsonAsync(new
                 {
-                    message = "An unexpected error occurred."
+                    message = "An unexpected error occurred. Please try again later."
                 });
             });
         });

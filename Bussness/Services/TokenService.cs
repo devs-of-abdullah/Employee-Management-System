@@ -12,12 +12,8 @@ namespace Business
 {
     public class TokenService : ITokenService
     {
-        private readonly IConfiguration _config;
-
-        public TokenService(IConfiguration config)
-        {
-            _config = config;
-        }
+        readonly IConfiguration _config;
+        public TokenService(IConfiguration config) { _config = config; }
 
         public TokenResponseDTO GenerateToken(UserEntity user)
         {
@@ -30,7 +26,7 @@ namespace Business
             };
 
             var keyString = _config["Jwt:Key"]
-                ?? throw new InvalidOperationException("JWT Key missing");
+                ?? throw new InvalidOperationException("JWT Key is missing from configuration");
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -60,4 +56,4 @@ namespace Business
             return Convert.ToBase64String(bytes);
         }
     }
-}
+    }

@@ -8,65 +8,72 @@ namespace Data.Repositories
     {
         readonly AppDbContext _context;
         public RoleRepository(AppDbContext context) { _context = context; }
-        public async Task<int> CreateAsync( RoleEntity role)
+
+        public async Task<List<RoleEntity>> GetAllAsync()
+        {
+            return await _context.Roles
+                .Include(r => r.EmployeeRoles)
+                    .ThenInclude(er => er.Employee)
+                .ToListAsync();
+        }
+
+        public async Task<RoleEntity?> GetByIdAsync(int id)
+        {
+            return await _context.Roles
+                .Include(r => r.EmployeeRoles)
+                    .ThenInclude(er => er.Employee)
+                .FirstOrDefaultAsync(r => r.Id == id);
+        }
+
+        public async Task<int> CreateAsync(RoleEntity role)
         {
             _context.Roles.Add(role);
             await _context.SaveChangesAsync();
             return role.Id;
         }
+
+        public async Task UpdateAsync(RoleEntity role)
+        {
+            _context.Roles.Update(role);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task DeleteAsync(int id)
         {
             var role = await _context.Roles.FindAsync(id)
-                ?? throw new KeyNotFoundException("role not found");
-
+                ?? throw new KeyNotFoundException("Role not found");
             _context.Roles.Remove(role);
             await _context.SaveChangesAsync();
         }
-        public async Task<RoleEntity?> GetByIdAsync(int id)
-        {
-            return await _context.Roles.FirstOrDefaultAsync(d => d.Id == id);
-        }
-        public async Task<List<RoleEntity>> GetAllAsync()
-        {
-            return await _context.Roles.ToListAsync();
-        }
-        public async Task UpdateAsync(RoleEntity role)
-        {
-            await _context.SaveChangesAsync();
-        }
-        public async Task AddEmployeeToRoleAsync(int employeeId,int roleId)
-        {
-            var employee = await _context.Employees.Include(e => e.EmployeeDepartments).FirstOrDefaultAsync(e => e.Id == employeeId);
 
+        public async Task AddEmployeeToRoleAsync(int roleId, int employeeId)
+        {
+            var exists = await _context.EmployeeRoles
+                .AnyAsync(er => er.RoleId == roleId && er.EmployeeId == employeeId);
 
-            if (employee == null)
-                throw new Exception("Employee not found.");
+            if (exists) return;
 
-            employee.EmployeeRoles.Add(new EmployeeRoleEntity
+            var relation = new EmployeeRoleEntity
             {
                 EmployeeId = employeeId,
-                RoleId = roleId
-            });
+                RoleId = roleId,
+                AssignedDate = DateTime.UtcNow
+            };
 
+            await _context.EmployeeRoles.AddAsync(relation);
             await _context.SaveChangesAsync();
-
-           
-
-            await _context.SaveChangesAsync();
-
         }
+
         public async Task RemoveEmployeeFromRoleAsync(int roleId, int employeeId)
         {
-            var relation = await _context.Set<EmployeeRoleEntity>().FindAsync(employeeId, roleId);
-            
-            if (relation == null)
-                return;
+            var relation = await _context.EmployeeRoles
+                .FirstOrDefaultAsync(er => er.RoleId == roleId && er.EmployeeId == employeeId);
 
-            _context.Set<EmployeeRoleEntity>().Remove(relation);
+            if (relation == null) return;
 
+            _context.EmployeeRoles.Remove(relation);
             await _context.SaveChangesAsync();
         }
-
     }
 }
 
