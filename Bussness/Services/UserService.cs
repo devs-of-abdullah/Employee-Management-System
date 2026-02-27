@@ -120,4 +120,18 @@ public class UserService : IUserService
 
         await _repo.UpdateAsync(user);
     }
+    public async Task AdminSoftDeleteAsync(int id)
+    {
+        var user = await _repo.GetByIdAsync(id)
+            ?? throw new KeyNotFoundException("User not found");
+
+        if (user.IsDeleted)
+            throw new InvalidOperationException("User already deleted");
+
+        user.IsDeleted = true;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _repo.UpdateAsync(user);
+    }
+
 }
